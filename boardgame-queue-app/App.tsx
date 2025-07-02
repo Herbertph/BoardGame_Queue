@@ -1,24 +1,19 @@
+// App.tsx
 import React from 'react';
-import { View, Button } from 'react-native';
-import { db } from './src/services/firebase';
-import { collection, addDoc } from 'firebase/firestore';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import PublishersScreen from './src/screens/PublishersScreen';
+import GamesScreen from './src/screens/GamesScreen'; // Vamos criar essa em seguida
+
+const Stack = createNativeStackNavigator();
 
 export default function App() {
-  const addTestDoc = async () => {
-    try {
-      await addDoc(collection(db, 'testCollection'), {
-        message: 'Conexão funcionando!',
-        timestamp: new Date()
-      });
-      alert('Documento enviado com sucesso!');
-    } catch (e) {
-      console.error('Erro ao adicionar documento: ', e);
-    }
-  };
-
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Button title="Testar Firebase" onPress={addTestDoc} />
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name="Publishers" component={PublishersScreen} />
+        <Stack.Screen name="Games" component={GamesScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
