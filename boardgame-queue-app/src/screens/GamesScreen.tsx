@@ -1,9 +1,9 @@
-// src/screens/GamesScreen.tsx
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, FlatList, StyleSheet } from 'react-native';
-import { useRoute } from '@react-navigation/native';
+import { View, Text, Image, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../services/firebase';
+import { NavigationProp } from '@react-navigation/native';
 
 interface Game {
   id: string;
@@ -12,8 +12,15 @@ interface Game {
   description: string;
 }
 
+type RootStackParamList = {
+  Publishers: undefined;
+  Games: { publisherId: string; publisherName: string };
+  Queue: { gameId: string; gameName: string };
+};
+
 export default function GamesScreen() {
   const route = useRoute();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { publisherId, publisherName } = route.params as { publisherId: string; publisherName: string };
   const [games, setGames] = useState<Game[]>([]);
 
@@ -31,6 +38,10 @@ export default function GamesScreen() {
     fetchGames();
   }, []);
 
+  const goToQueue = (game: Game) => {
+    navigation.navigate('Queue', { gameId: game.id, gameName: game.name });
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Jogos da {publisherName}</Text>
@@ -43,6 +54,9 @@ export default function GamesScreen() {
             <View style={{ flex: 1 }}>
               <Text style={styles.name}>{item.name}</Text>
               <Text style={styles.desc}>{item.description}</Text>
+              <TouchableOpacity style={styles.button} onPress={() => goToQueue(item)}>
+                <Text style={styles.buttonText}>Ver fila</Text>
+              </TouchableOpacity>
             </View>
           </View>
         )}
@@ -57,5 +71,7 @@ const styles = StyleSheet.create({
   card: { flexDirection: 'row', padding: 10, backgroundColor: '#f0f0f0', borderRadius: 8, marginBottom: 10 },
   image: { width: 60, height: 60, marginRight: 10, borderRadius: 4 },
   name: { fontSize: 18, fontWeight: 'bold' },
-  desc: { fontSize: 14, color: '#555' }
+  desc: { fontSize: 14, color: '#555', marginBottom: 10 },
+  button: { backgroundColor: '#007bff', padding: 8, borderRadius: 6 },
+  buttonText: { color: '#fff', textAlign: 'center' }
 });
