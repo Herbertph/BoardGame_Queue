@@ -48,18 +48,43 @@ export default function QueueScreen() {
   };
 
   const handleEnterQueue = async () => {
-    const userId = await getOrCreateUserId();
-    if (userInQueue) return;
+  const userId = await getOrCreateUserId();
 
-    await addDoc(collection(db, 'Queues'), {
-      gameId,
-      userId,
-      enteredAt: new Date().toISOString(),
-      status: 'esperando',
-    });
+  // Verifica se o usuário já está em qualquer fila ativa
+  const q = query(
+    collection(db, 'Queues'),
+    where('userId', '==', userId),
+    where('status', '==', 'esperando')
+  );
 
-    await loadQueue();
-  };
+  const snapshot = await getDocs(q);
+
+  // Se já estiver em outra fila
+  const alreadyInAnotherQueue = snapshot.docs.some(doc => doc.data().gameId !== gameId);
+  const alreadyInThisQueue = snapshot.docs.some(doc => doc.data().gameId === gameId);
+
+  if (alreadyInAnotherQueue) {
+    alert('Você já está em outra fila. Saia dela antes de entrar em uma nova.');
+    return;
+  }
+
+  // Se já está nessa fila, evita duplicar
+  if (alreadyInThisQueue) {
+    alert('Você já está nessa fila.');
+    return;
+  }
+
+  // Tudo certo, adiciona à fila
+  await addDoc(collection(db, 'Queues'), {
+    gameId,
+    userId,
+    enteredAt: new Date().toISOString(),
+    status: 'esperando',
+  });
+
+  await loadQueue();
+};
+
 
   const handleLeaveQueue = async () => {
     const userId = await getOrCreateUserId();

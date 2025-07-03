@@ -1,9 +1,10 @@
 // src/screens/PublishersScreen.tsx
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, Button } from 'react-native';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { useNavigation } from '@react-navigation/native';
+
 
 interface Publisher {
   id: string;
@@ -15,6 +16,7 @@ interface Publisher {
 type RootStackParamList = {
   Publishers: undefined;
   Games: { publisherId: string; publisherName: string };
+  AdminLogin: undefined;
 };
 
 export default function PublishersScreen() {
@@ -51,6 +53,7 @@ export default function PublishersScreen() {
           </TouchableOpacity>
         )}
       />
+      <Button title="Sou Organizador" onPress={() => navigation.navigate('AdminLogin')} />
     </View>
   );
 }
